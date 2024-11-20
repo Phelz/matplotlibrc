@@ -1,0 +1,43 @@
+SHELL := /bin/bash
+
+CONDAROOT ?= /home/$(USER)/anaconda3
+ENV_NAME := project_env
+MATPLOTLIBRC_URL := https://archive.org/download/matplotlibrc/matplotlibrc
+MATPLOTLIBRC_DIR := $(CONDAROOT)/envs/$(ENV_NAME)/lib/python3.11/site-packages/matplotlib/mpl-data/
+
+.PHONY: setup init install message update_matplotlibrc
+
+setup: init install message update_matplotlibrc
+
+init: 
+	@echo "Initializing..."
+	@chmod -R 755 src/
+
+install:
+	@echo "Creating and setting up the Conda environment..."
+	@source $(CONDAROOT)/bin/activate && conda env create -n $(ENV_NAME) -f environment.yml -y 
+	@echo "Installing development package..."
+	@source $(CONDAROOT)/bin/activate $(ENV_NAME) && conda develop .
+
+update_matplotlibrc:
+	@echo "Updating matplotlibrc configuration..."
+	@wget -O matplotlibrc $(MATPLOTLIBRC_URL)
+	@cp $(MATPLOTLIBRC_DIR)/matplotlibrc $(MATPLOTLIBRC_DIR)/matplotlibrc.backup
+	@mv matplotlibrc $(MATPLOTLIBRC_DIR)/
+
+message:
+	@echo "=================================================="
+	@echo "Setup completed. Activate the environment with 'conda activate $(ENV_NAME)'"
+	@echo "=================================================="
+
+
+install_fonts: download_ttcf clean_matplotlib_cache
+
+download_ttcf:
+	@echo "Installing Microsoft TrueType core fonts. This requires administrative privileges:"
+	@echo "Running 'sudo apt install msttcorefonts -qq'"
+	@sudo apt install msttcorefonts -qq
+
+clean_matplotlib_cache:
+	@echo "Cleaning Matplotlib cache..."
+	@rm -rf ~/.cache/matplotlib
