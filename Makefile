@@ -24,7 +24,7 @@ init:
 
 install:
 	@echo "Creating and setting up the Conda environment..."
-	@source $(CONDAROOT)/bin/activate && conda env create -n $(ENV_NAME) python=$(PYTHON_VERSION)
+	@source $(CONDAROOT)/bin/activate && conda env create -n $(ENV_NAME) python=$(PYTHON_VERSION) -y
 	@echo "Installing development package..."
 	@source $(CONDAROOT)/bin/activate $(ENV_NAME) && conda develop .
 
