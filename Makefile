@@ -6,13 +6,14 @@ SHELL := /bin/bash
 # 3. (Optional) Run 'sudo make install_fonts' to install Microsoft TrueType core fonts if needed
 
 # Pick an enviroment name and python verison
-ENV_NAME := quadrupole_magnet
-PYTHON_VERSION := 3.12
+ENV_NAME := quad_mag
+PYTHON_VERSION := 3.12.0
+PYTHON_VERSION_TRUNCATED := $(shell echo $(PYTHON_VERSION) | cut -d. -f1,2)
 # --------------------------------------------------
 
 CONDAROOT ?= /home/$(USER)/anaconda3
 MATPLOTLIBRC_URL := https://archive.org/download/matplotlibrc/matplotlibrc
-MATPLOTLIBRC_DIR := $(CONDAROOT)/envs/$(ENV_NAME)/lib/python$(PYTHON_VERSION)/site-packages/matplotlib/mpl-data/
+MATPLOTLIBRC_DIR := $(CONDAROOT)/envs/$(ENV_NAME)/lib/python$(PYTHON_VERSION_TRUNCATED)/site-packages/matplotlib/mpl-data/
 
 .PHONY: setup init install message update_matplotlibrc
 
@@ -21,10 +22,22 @@ setup: init install message update_matplotlibrc
 init: 
 	@echo "Initializing..."
 	@chmod -R 755 src/
+	@echo "Using python=$(PYTHON_VERSION) and environment name=$(ENV_NAME)"
+
+	# Add dependencies as desired
+	@echo "name: $(ENV_NAME)" > environment.yml
+	@echo "channels:" >> environment.yml
+	@echo "- anaconda" >> environment.yml
+	@echo "- defaults" >> environment.yml
+	@echo "dependencies:" >> environment.yml
+	@echo "- ipython" >> environment.yml
+	@echo "- matplotlib" >> environment.yml
+	@echo "- pandas" >> environment.yml
+	@echo "- python=$(PYTHON_VERSION)" >> environment.yml
 
 install:
 	@echo "Creating and setting up the Conda environment..."
-	@source $(CONDAROOT)/bin/activate && conda env create -n $(ENV_NAME) python=$(PYTHON_VERSION) -y
+	@source $(CONDAROOT)/bin/activate && conda env create -n $(ENV_NAME) -f environment.yml -y
 	@echo "Installing development package..."
 	@source $(CONDAROOT)/bin/activate $(ENV_NAME) && conda develop .
 
@@ -33,6 +46,7 @@ update_matplotlibrc:
 	@wget -O matplotlibrc $(MATPLOTLIBRC_URL)
 	@cp $(MATPLOTLIBRC_DIR)/matplotlibrc $(MATPLOTLIBRC_DIR)/matplotlibrc.backup
 	@mv matplotlibrc $(MATPLOTLIBRC_DIR)/
+	@echo "Matplotlibrc updated."
 
 message:
 	@echo "=================================================="
