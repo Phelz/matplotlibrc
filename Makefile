@@ -44,7 +44,7 @@ install:
 update_matplotlibrc:
 	@echo "Updating matplotlibrc configuration..."
 	@wget -O matplotlibrc $(MATPLOTLIBRC_URL)
-	@cp $(MATPLOTLIBRC_DIR)/matplotlibrc $(MATPLOTLIBRC_DIR)/matplotlibrc.backup
+	@cp $(MATPLOTLIBRC_DIR)/matplotlibrc $(MATPLOTLIBRC_DIR)/matplotlibrc_backup
 	@mv matplotlibrc $(MATPLOTLIBRC_DIR)/
 	@echo "Matplotlibrc updated."
 
